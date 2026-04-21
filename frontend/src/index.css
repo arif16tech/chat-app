@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/* Define your custom colors for Tailwind v4 here */
+@theme {
+  --color-brand-500: #6366f1; /* Indigo 500 */
+  --color-brand-600: #4f46e5; /* Indigo 600 */
+  
+  --color-surface-500: #64748b; /* Slate 500 */
+  --color-surface-600: #475569; /* Slate 600 */
+  --color-surface-700: #334155; /* Slate 700 */
+  --color-surface-800: #1e293b; /* Slate 800 */
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: #334155 transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #334155;
+    border-radius: 99px;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #0a0f1e;
+    color: #f8fafc;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-500 hover:bg-brand-600 text-white font-semibold px-4 py-2.5 rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply bg-surface-700 hover:bg-surface-600 text-slate-300 hover:text-white font-medium px-4 py-2.5 rounded-xl transition-all duration-200 active:scale-95;
+  }
+
+  .input-field {
+    @apply w-full bg-surface-700 border border-surface-500 text-slate-100 placeholder-slate-500 rounded-xl px-4 py-3 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/40 transition-all duration-200;
+  }
+
+  .glass-card {
+    @apply bg-surface-800/80 backdrop-blur-md border border-surface-600/50 rounded-2xl;
+  }
+
+  .message-bubble-sent {
+    @apply bg-brand-600 text-white rounded-2xl rounded-br-sm px-4 py-2.5 max-w-xs sm:max-w-md;
+  }
+
+  .message-bubble-received {
+    @apply bg-surface-700 text-slate-100 rounded-2xl rounded-bl-sm px-4 py-2.5 max-w-xs sm:max-w-md;
+  }
+}
+
+/* Smooth page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms, transform 200ms;
+}
+
+/* Typing animation */
+.typing-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #818cf8;
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+}
