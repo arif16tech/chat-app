@@ -79,7 +79,7 @@ export default function ChatWindow({ conversation, onBack, onConversationUpdate 
 
   useEffect(() => { 
     if (page === 1) {
-      bottomRef.current?.scrollIntoView({ behavior: "auto" }); 
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" }); 
     }
   }, [messages, isTyping, page]);
 
