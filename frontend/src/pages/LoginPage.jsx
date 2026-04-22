@@ -22,7 +22,9 @@ export default function LoginPage() {
       toast.success(`Welcome back, ${data.user.name}!`);
       navigate("/");
     } catch (err) {
-      toast.error(err.response?.data?.error || "Login failed");
+      const errorData = err.response?.data?.error;
+      const errorMessage = typeof errorData === 'string' ? errorData : errorData?.message || "Login failed";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
