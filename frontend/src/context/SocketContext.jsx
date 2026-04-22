@@ -38,6 +38,14 @@ export const SocketProvider = ({ children }) => {
       setOnlineUsers((prev) => prev.filter((id) => id !== userId));
     });
 
+    socket.on("new_message", (msg) => {
+      // If we receive a message and we are not the sender, acknowledge delivery
+      const senderId = msg.sender?._id || msg.sender;
+      if (senderId !== user._id) {
+        socket.emit("message_delivered", { messageId: msg._id, senderId });
+      }
+    });
+
     socket.on("typing_start", ({ userId, conversationId }) => {
       setTypingUsers((prev) => ({ ...prev, [conversationId]: userId }));
     });

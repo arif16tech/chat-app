@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import dayjs from "../../utils/dayjs.js";
@@ -16,9 +16,13 @@ export default function ChatWindow({ conversation, onBack, onConversationUpdate 
   const { socket, onlineUsers, typingUsers, emitTypingStart, emitTypingStop } = useSocket();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [sending, setSending] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
   const bottomRef = useRef(null);
+  const scrollRef = useRef(null);
   const isGroup = conversation.isGroup;
   const other = !isGroup && conversation.members?.find((m) => m._id !== user._id);
   const name = isGroup ? conversation.group?.name : other?.name;
@@ -29,16 +33,55 @@ export default function ChatWindow({ conversation, onBack, onConversationUpdate 
   const fetchMessages = useCallback(async () => {
     setLoading(true);
     try {
-      const { data } = await api.get(`/messages/${conversation._id}`);
+      const { data } = await api.get(`/messages/${conversation._id}?page=1&limit=50`);
       setMessages(data.messages);
+      setPage(1);
+      setHasMore(1 < data.pages);
       await api.put(`/messages/seen/${conversation._id}`);
     } catch { toast.error("Failed to load messages"); }
     finally { setLoading(false); }
   }, [conversation._id]);
 
+  const loadMoreMessages = async () => {
+    if (!hasMore || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const scrollContainer = scrollRef.current;
+      const previousScrollHeight = scrollContainer?.scrollHeight || 0;
+
+      const nextPage = page + 1;
+      const { data } = await api.get(`/messages/${conversation._id}?page=${nextPage}&limit=50`);
+      
+      setMessages((prev) => [...data.messages, ...prev]);
+      setPage(nextPage);
+      setHasMore(nextPage < data.pages);
+
+      // Restore scroll position gracefully
+      requestAnimationFrame(() => {
+        if (scrollContainer) {
+          scrollContainer.scrollTop = scrollContainer.scrollHeight - previousScrollHeight;
+        }
+      });
+    } catch {
+      toast.error("Failed to load older messages");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const handleScroll = () => {
+    if (scrollRef.current && scrollRef.current.scrollTop === 0) {
+      loadMoreMessages();
+    }
+  };
+
   useEffect(() => { fetchMessages(); }, [fetchMessages]);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isTyping]);
+  useEffect(() => { 
+    if (page === 1) {
+      bottomRef.current?.scrollIntoView({ behavior: "auto" }); 
+    }
+  }, [messages, isTyping, page]);
 
   useEffect(() => {
     if (!socket) return;
@@ -126,7 +169,11 @@ export default function ChatWindow({ conversation, onBack, onConversationUpdate 
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+      <div 
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-1"
+      >
         {loading ? (
           <div className="flex justify-center items-center h-full"><Spinner /></div>
         ) : messages.length === 0 ? (
@@ -140,7 +187,13 @@ export default function ChatWindow({ conversation, onBack, onConversationUpdate 
             <p className="text-slate-500 text-sm mt-1">Say hello! 👋</p>
           </div>
         ) : (
-          Object.entries(groupedMessages).map(([date, msgs]) => (
+          <>
+            {loadingMore && (
+              <div className="flex justify-center py-4">
+                <Spinner size="sm" />
+              </div>
+            )}
+            {Object.entries(groupedMessages).map(([date, msgs]) => (
             <div key={date}>
               {/* Date separator */}
               <div className="flex items-center gap-3 my-4">
@@ -160,7 +213,8 @@ export default function ChatWindow({ conversation, onBack, onConversationUpdate 
                 />
               ))}
             </div>
-          ))
+          ))}
+        </>
         )}
 
         {/* Typing indicator */}

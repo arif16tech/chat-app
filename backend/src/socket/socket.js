@@ -79,7 +79,13 @@ export const initSocket = (httpServer) => {
     });
 
     // ── Message Delivered ─────────────────────────────────────────────────
-    socket.on("message_delivered", ({ messageId, senderId }) => {
+    socket.on("message_delivered", async ({ messageId, senderId }) => {
+      try {
+        await Message.findByIdAndUpdate(messageId, { status: "delivered" });
+      } catch (err) {
+        console.error("Failed to update message status to delivered:", err);
+      }
+      
       const senderSocketId = userSocketMap[senderId];
       if (senderSocketId) {
         io.to(senderSocketId).emit("message_delivered", { messageId, deliveredTo: userId });

@@ -6,7 +6,7 @@ import { getSocketId, getIO } from "../socket/socket.js";
 export const getMessages = async (req, res) => {
   try {
     const { conversationId } = req.params;
-    const { page = 1, limit = 50 } = req.query;
+    const { page = 1, limit = 25 } = req.query;
 
     const conv = await Conversation.findOne({
       _id: conversationId,
@@ -15,14 +15,17 @@ export const getMessages = async (req, res) => {
     if (!conv) return res.status(404).json({ error: "Conversation not found" });
 
     const skip = (Number(page) - 1) * Number(limit);
-    const messages = await Message.find({
+    let messages = await Message.find({
       conversation: conversationId,
       deletedFor: { $ne: req.user._id },
     })
       .populate("sender", "name username profilePic")
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
+
+    // Reverse so the newest messages are at the bottom for the frontend
+    messages = messages.reverse();
 
     // Mark undelivered messages as delivered
     const undelivered = messages.filter(

@@ -19,8 +19,8 @@ A production-ready real-time chat application built with the **MERN stack** (Mon
 - **Morgan** — HTTP logging
 
 ### Frontend
-- **React 18 + Vite**
-- **React Router DOM v6**
+- **React + Vite**
+- **React Router DOM**
 - **Socket.IO Client**
 - **Tailwind CSS** — styling
 - **Framer Motion** — animations
@@ -64,16 +64,17 @@ chatapp/
 ## ⚡ Core Features
 
 - ✅ **Auth**: Signup → Email OTP verification → Login (email or username) → Forgot/Reset password
-- ✅ **1-to-1 Chat**: Real-time via Socket.IO, message status (sent/delivered/seen)
+- ✅ **1-to-1 Chat**: Real-time via Socket.IO, WhatsApp-style message ticks (Sent/Delivered/Seen)
 - ✅ **Group Chat**: Create groups, add/remove members, leave, admin controls
 - ✅ **Typing Indicators**: Live typing dots shown to conversation partner
 - ✅ **Online/Offline Status**: Real-time presence with last seen timestamps
-- ✅ **File Sharing**: Images, videos, documents — optimized direct memory streaming to Cloudinary
+- ✅ **File Sharing**: Images, videos, documents with full-screen immersive media preview mode
 - ✅ **Block System**: Block/unblock users, blocked users can't message each other
 - ✅ **User Search**: Search by username or name to start new chats
 - ✅ **Profile Management**: Update name, profile picture, password
 - ✅ **Unread Counts**: Per-conversation unread message badge in sidebar
 - ✅ **Date Separators**: Messages grouped by date (Today, Yesterday, etc.)
+- ✅ **Infinite Scroll**: Smoothly load older messages by scrolling up
 - ✅ **Mobile Responsive**: Sidebar hidden on mobile, full-screen chat view
 
 ---
@@ -128,7 +129,7 @@ cd frontend
 npm install
 ```
 
-Create `.env` (optional, proxy is configured in vite.config.js):
+Create `.env`
 ```env
 VITE_API_URL=/api
 VITE_SOCKET_URL=http://localhost:5000
@@ -136,9 +137,7 @@ VITE_SOCKET_URL=http://localhost:5000
 
 Start the frontend:
 ```bash
-npm run dev      # Development
-npm run build    # Production build
-npm run preview  # Preview build
+npm run dev
 ```
 
 ---
@@ -265,30 +264,3 @@ admin (ref User), members[] (ref User), conversation (ref Conversation)
 - Zod validation on auth + message routes
 - Block system prevents messaging between blocked users
 - Socket authentication via JWT in handshake
-
----
-
-## 🌍 Production Deployment
-
-### Backend
-- Set `NODE_ENV=production`
-- Use PM2: `pm2 start server.js --name chatapp-api`
-- Configure MongoDB Atlas for cloud DB
-- Use Cloudinary for all file storage (already configured)
-
-### Frontend
-```bash
-npm run build
-# Deploy dist/ folder to Vercel, Netlify, or serve via Nginx
-```
-
-### Environment Variables for Production
-- Set `CLIENT_URL` to your frontend domain
-- Use strong JWT_SECRET (32+ random characters)
-- Use MongoDB Atlas connection string
-
----
-
-## 📄 License
-
-MIT — free to use, modify, and distribute.
