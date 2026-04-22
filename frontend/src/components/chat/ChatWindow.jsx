@@ -78,10 +78,13 @@ export default function ChatWindow({ conversation, onBack, onConversationUpdate 
   useEffect(() => { fetchMessages(); }, [fetchMessages]);
 
   useEffect(() => { 
-    if (page === 1) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" }); 
+    if (page === 1 && !loading) {
+      // Use requestAnimationFrame to ensure DOM is fully painted
+      requestAnimationFrame(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "auto" }); 
+      });
     }
-  }, [messages, isTyping, page]);
+  }, [messages, isTyping, page, loading]);
 
   useEffect(() => {
     if (!socket) return;
